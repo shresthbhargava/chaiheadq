@@ -1,7 +1,170 @@
 {% extends "layout.html" %}
-{% block title %}Home - ChaiHeadQ{% endblock %}
+{% block title %}ChaiHeadQ - Connect & Share{% endblock %}
 
 {% block content %}
-    <h1 class="text-light">Welcome to ChaiHeadQ</h1>
-    <p class="text-muted">Your one-stop platform for sharing and discovering tweets.</p>
+<div class="hero-section text-center py-5 mb-5" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); color: white; border-radius: var(--border-radius); margin: -1rem -1rem 2rem -1rem; padding: 4rem 1rem;">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">
+            <i class="fas fa-coffee"></i> Welcome to ChaiHeadQ
+        </h1>
+        <p class="lead mb-4">Your modern social platform for sharing thoughts, connecting with friends, and discovering amazing content.</p>
+        
+        {% if not user.is_authenticated %}
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{% url 'register' %}" class="btn btn-light btn-lg">
+                <i class="fas fa-user-plus"></i> Join Now
+            </a>
+            <a href="{% url 'login' %}" class="btn btn-outline" style="border-color: white; color: white;">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </a>
+        </div>
+        {% else %}
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{% url 'tweet_create' %}" class="btn btn-light btn-lg">
+                <i class="fas fa-plus"></i> Create Tweet
+            </a>
+            <a href="{% url 'tweet_list' %}" class="btn btn-outline" style="border-color: white; color: white;">
+                <i class="fas fa-stream"></i> View All Tweets
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="content-wrapper">
+    <!-- Left Sidebar -->
+    <div class="sidebar d-none d-lg-block">
+        <h4><i class="fas fa-chart-line"></i> Platform Stats</h4>
+        <div class="sidebar-item">
+            <strong>{{ total_tweets|default:0 }}</strong><br>
+            <small>Total Tweets</small>
+        </div>
+        <div class="sidebar-item">
+            <strong>{{ total_users|default:0 }}</strong><br>
+            <small>Active Users</small>
+        </div>
+        <div class="sidebar-item">
+            <strong>{{ total_likes|default:0 }}</strong><br>
+            <small>Total Likes</small>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Features Section -->
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card text-center p-4" style="background: var(--background); border-radius: var(--border-radius); box-shadow: var(--shadow); height: 100%;">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-bolt fa-3x" style="color: var(--primary-color);"></i>
+                    </div>
+                    <h4>Lightning Fast</h4>
+                    <p class="text-muted">Share your thoughts instantly with our optimized platform built for speed and performance.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="feature-card text-center p-4" style="background: var(--background); border-radius: var(--border-radius); box-shadow: var(--shadow); height: 100%;">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-users fa-3x" style="color: var(--success-color);"></i>
+                    </div>
+                    <h4>Connect & Engage</h4>
+                    <p class="text-muted">Build meaningful connections with like-minded people and engage in interesting conversations.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="feature-card text-center p-4" style="background: var(--background); border-radius: var(--border-radius); box-shadow: var(--shadow); height: 100%;">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-shield-alt fa-3x" style="color: var(--warning-color);"></i>
+                    </div>
+                    <h4>Safe & Secure</h4>
+                    <p class="text-muted">Your privacy matters. We use industry-standard security measures to protect your data.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Tweets Preview -->
+        {% if tweets %}
+        <div class="recent-tweets">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-fire"></i> Recent Activity</h2>
+                <a href="{% url 'tweet_list' %}" class="btn btn-outline">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="tweets-preview">
+                {% for tweet in tweets|slice:":3" %}
+                <div class="tweet-card fade-in">
+                    <div class="tweet-header">
+                        <div class="user-avatar">
+                            {{ tweet.user.username|first|upper }}
+                        </div>
+                        <div class="user-info">
+                            <h5>{{ tweet.user.get_full_name|default:tweet.user.username }}</h5>
+                            <div class="username">@{{ tweet.user.username }} · {{ tweet.created_at|timesince }} ago</div>
+                        </div>
+                    </div>
+
+                    <div class="tweet-content">
+                        {{ tweet.text|truncatewords:20 }}
+                    </div>
+
+                    {% if tweet.photo %}
+                    <div class="tweet-media">
+                        <img src="{{ tweet.photo.url }}" alt="Tweet image" loading="lazy">
+                    </div>
+                    {% endif %}
+
+                    <div class="tweet-actions">
+                        <div class="tweet-stats">
+                            <span><i class="fas fa-heart"></i> {{ tweet.total_likes }}</span>
+                            <span><i class="fas fa-retweet"></i> 0</span>
+                            <span><i class="fas fa-comment"></i> 0</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state text-center py-5">
+            <i class="fas fa-comments fa-4x mb-4" style="color: var(--text-light);"></i>
+            <h3>No tweets yet!</h3>
+            <p class="text-muted mb-4">Be the first to share something amazing with the community.</p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'tweet_create' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-plus"></i> Create First Tweet
+            </a>
+            {% else %}
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-user-plus"></i> Join ChaiHeadQ
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar d-none d-lg-block">
+        <h4><i class="fas fa-info-circle"></i> Getting Started</h4>
+        <div class="sidebar-item">
+            <strong>1. Create Account</strong><br>
+            <small>Sign up in seconds</small>
+        </div>
+        <div class="sidebar-item">
+            <strong>2. Share Thoughts</strong><br>
+            <small>Post your first tweet</small>
+        </div>
+        <div class="sidebar-item">
+            <strong>3. Connect</strong><br>
+            <small>Follow interesting people</small>
+        </div>
+        <div class="sidebar-item">
+            <strong>4. Engage</strong><br>
+            <small>Like and share content</small>
+        </div>
+    </div>
+</div>
 {% endblock %}

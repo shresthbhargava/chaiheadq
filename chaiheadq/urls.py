@@ -15,14 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('tweet.urls')),  # Include the tweet app URLs at root
-    path('tweet/', include('tweet.urls')),  # Also keep tweet/ prefix for compatibility
-    path('accounts/', include('django.contrib.auth.urls')),  # Include Django's auth URLs
+    path('accounts/', include('django.contrib.auth.urls')), # Django's auth URLs
+    path('', include('tweet.urls')), # Include the tweet app URLs at the root
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

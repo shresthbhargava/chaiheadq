@@ -1,0 +1,163 @@
+{% extends "layout.html" %}
+{% block title %}{% if form.instance.pk %}Edit Tweet{% else %}Create Tweet{% endif %} - ChaiHeadQ{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="form-container">
+            <div class="d-flex align-items-center mb-4">
+                <div class="user-avatar me-3">
+                    {{ user.username|first|upper }}
+                </div>
+                <div>
+                    <h2 class="mb-0">
+                        {% if form.instance.pk %}
+                            <i class="fas fa-edit"></i> Edit Tweet
+                        {% else %}
+                            <i class="fas fa-plus"></i> Create New Tweet
+                        {% endif %}
+                    </h2>
+                    <p class="text-muted mb-0">Share your thoughts with the world</p>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="tweet-form">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_text" class="form-label">
+                        <i class="fas fa-comment"></i> What's happening?
+                    </label>
+                    <textarea 
+                        name="text" 
+                        id="id_text" 
+                        class="form-control" 
+                        placeholder="Share your thoughts, ideas, or updates..."
+                        rows="4"
+                        maxlength="280"
+                        required
+                    >{{ form.text.value|default:'' }}</textarea>
+                    <div class="character-counter"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_photo" class="form-label">
+                                <i class="fas fa-image"></i> Add Photo (Optional)
+                            </label>
+                            <input 
+                                type="file" 
+                                name="photo" 
+                                id="id_photo" 
+                                class="form-control" 
+                                accept="image/*"
+                            >
+                            <small class="text-muted">Supported formats: JPG, PNG, GIF (Max 5MB)</small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="id_video" class="form-label">
+                                <i class="fas fa-video"></i> Add Video (Optional)
+                            </label>
+                            <input 
+                                type="file" 
+                                name="video" 
+                                id="id_video" 
+                                class="form-control" 
+                                accept="video/*"
+                            >
+                            <small class="text-muted">Supported formats: MP4, WebM (Max 50MB)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current media preview for edit mode -->
+                {% if form.instance.pk %}
+                    {% if form.instance.photo %}
+                    <div class="current-media mb-3">
+                        <h6>Current Photo:</h6>
+                        <img src="{{ form.instance.photo.url }}" alt="Current photo" style="max-width: 200px; border-radius: 8px;">
+                    </div>
+                    {% endif %}
+                    
+                    {% if form.instance.video %}
+                    <div class="current-media mb-3">
+                        <h6>Current Video:</h6>
+                        <video controls style="max-width: 200px; border-radius: 8px;">
+                            <source src="{{ form.instance.video.url }}" type="video/mp4">
+                        </video>
+                    </div>
+                    {% endif %}
+                {% endif %}
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <div class="tweet-tips">
+                        <small class="text-muted">
+                            <i class="fas fa-lightbulb"></i> 
+                            Tips: Use hashtags (#) to join conversations, mention users (@), and keep it engaging!
+                        </small>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <a href="{% url 'tweet_list' %}" class="btn btn-outline me-2">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> 
+                            {% if form.instance.pk %}Update Tweet{% else %}Post Tweet{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tweet Preview -->
+        <div class="tweet-preview mt-4" style="display: none;">
+            <h5><i class="fas fa-eye"></i> Preview</h5>
+            <div class="tweet-card">
+                <div class="tweet-header">
+                    <div class="user-avatar">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="user-info">
+                        <h5>{{ user.get_full_name|default:user.username }}</h5>
+                        <div class="username">@{{ user.username }} · now</div>
+                    </div>
+                </div>
+                <div class="tweet-content preview-content">
+                    <!-- Content will be updated by JavaScript -->
+                </div>
+                <div class="tweet-actions">
+                    <div class="tweet-stats">
+                        <span><i class="fas fa-heart"></i> 0</span>
+                        <span><i class="fas fa-retweet"></i> 0</span>
+                        <span><i class="fas fa-comment"></i> 0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Real-time preview
+document.addEventListener('DOMContentLoaded', function() {
+    const textArea = document.getElementById('id_text');
+    const preview = document.querySelector('.tweet-preview');
+    const previewContent = document.querySelector('.preview-content');
+    
+    textArea.addEventListener('input', function() {
+        const text = this.value.trim();
+        if (text) {
+            previewContent.textContent = text;
+            preview.style.display = 'block';
+        } else {
+            preview.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

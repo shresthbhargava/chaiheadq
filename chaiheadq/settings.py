@@ -132,6 +132,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Login redirect URL
 LOGIN_URL = '/accounts/login'
-LOGIN_REDIRECT_URL = '/tweet/'  # Redirect to tweet list after login
-LOGOUT_REDIRECT_URL = '/tweet/'  # Redirect to homepage after logout
+LOGIN_REDIRECT_URL = 'tweet_list'  # Redirect to tweet list after login
+LOGOUT_REDIRECT_URL = 'tweet_list'  # Redirect to tweet list after logout
 

@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import Tweet
 from .forms import TweetForm, userRegisterForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 
 def index(request):
     """Display all tweets on the homepage"""
@@ -70,3 +70,8 @@ def register(request):
     else:
         form = userRegisterForm()
     return render(request, 'registration/register.html', {'form': form})
+
+def logout_view(request):
+    """Logout the user"""
+    logout(request)
+    return render(request, 'tweet/logout.html')

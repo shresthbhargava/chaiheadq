@@ -1,46 +1,178 @@
 {% extends "layout.html" %}
-{% block title %}Tweets - ChaiHeadQ{% endblock %}
+{% block title %}All Tweets - ChaiHeadQ{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Tweets</h1>
-    {% if user.is_authenticated %}
-    <a href="{% url 'tweet_create' %}" class="btn btn-primary">Create Tweet</a>
-    {% endif %}
-</div>
+<div class="content-wrapper">
+    <!-- Left Sidebar -->
+    <div class="sidebar d-none d-lg-block">
+        <h4><i class="fas fa-fire"></i> Trending</h4>
+        <div class="sidebar-item">
+            <strong>#ChaiHeadQ</strong><br>
+            <small>1,234 tweets</small>
+        </div>
+        <div class="sidebar-item">
+            <strong>#WebDevelopment</strong><br>
+            <small>856 tweets</small>
+        </div>
+        <div class="sidebar-item">
+            <strong>#Django</strong><br>
+            <small>642 tweets</small>
+        </div>
+    </div>
 
-{% if tweets %}
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        {% for tweet in tweets %}
-        <div class="col">
-            <div class="card h-100 bg-dark border-light">
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">
+                <i class="fas fa-stream"></i> Latest Tweets
+            </h1>
+            {% if user.is_authenticated %}
+            <a href="{% url 'tweet_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Tweet
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Tweet Compose (for authenticated users) -->
+        {% if user.is_authenticated %}
+        <div class="compose-tweet">
+            <div class="compose-header">
+                <div class="compose-avatar">
+                    {{ user.username|first|upper }}
+                </div>
+                <h5 class="mb-0">What's happening?</h5>
+            </div>
+            <form method="post" action="{% url 'tweet_create' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <textarea name="text" class="form-control" placeholder="Share your thoughts..." rows="3" maxlength="280" required></textarea>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <label for="id_photo" class="btn btn-outline btn-sm">
+                            <i class="fas fa-image"></i> Photo
+                        </label>
+                        <input type="file" id="id_photo" name="photo" accept="image/*" style="display: none;">
+                        
+                        <label for="id_video" class="btn btn-outline btn-sm">
+                            <i class="fas fa-video"></i> Video
+                        </label>
+                        <input type="file" id="id_video" name="video" accept="video/*" style="display: none;">
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Tweet
+                    </button>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+
+        <!-- Tweets List -->
+        <div class="tweets-container">
+            {% for tweet in tweets %}
+            <div class="tweet-card fade-in">
+                <div class="tweet-header">
+                    <div class="user-avatar">
+                        {{ tweet.user.username|first|upper }}
+                    </div>
+                    <div class="user-info">
+                        <h5>{{ tweet.user.get_full_name|default:tweet.user.username }}</h5>
+                        <div class="username">@{{ tweet.user.username }} · {{ tweet.created_at|timesince }} ago</div>
+                    </div>
+                </div>
+
+                <div class="tweet-content">
+                    {{ tweet.text }}
+                </div>
+
                 {% if tweet.photo %}
-                    <img src="{{ tweet.photo.url }}" class="card-img-top" alt="Tweet image" style="max-height: 300px; object-fit: cover;">
+                <div class="tweet-media">
+                    <img src="{{ tweet.photo.url }}" alt="Tweet image" loading="lazy">
+                </div>
                 {% endif %}
-                <div class="card-body d-flex flex-column">
-                    <h5 class="card-title">{{ tweet.user.username }}</h5>
-                    <p class="card-text flex-grow-1">{{ tweet.text }}</p>
-                    <div class="d-flex justify-content-between align-items-center mt-auto">
-                        <small class="text-muted">{{ tweet.created_at|date:"M d, Y H:i" }}</small>
+
+                {% if tweet.video %}
+                <div class="tweet-media">
+                    <video controls style="width: 100%; border-radius: 12px;">
+                        <source src="{{ tweet.video.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                {% endif %}
+
+                <div class="tweet-actions">
+                    <div class="tweet-stats">
+                        <span><i class="fas fa-heart"></i> <span class="like-count">{{ tweet.total_likes }}</span></span>
+                        <span><i class="fas fa-retweet"></i> <span class="retweet-count">0</span></span>
+                        <span><i class="fas fa-comment"></i> 0</span>
+                    </div>
+
+                    <div class="action-buttons">
+                        <!-- Like Button -->
+                        <button class="btn btn-sm btn-outline like-btn" data-tweet-id="{{ tweet.id }}">
+                            <i class="far fa-heart"></i> Like
+                        </button>
+
+                        <!-- Retweet Button -->
+                        <button class="btn btn-sm btn-outline retweet-btn" data-tweet-id="{{ tweet.id }}">
+                            <i class="fas fa-retweet"></i> Retweet
+                        </button>
+
+                        <!-- Share Button -->
+                        <button class="btn btn-sm btn-outline share-btn">
+                            <i class="fas fa-share"></i> Share
+                        </button>
+
                         {% if tweet.user == user %}
-                            <div>
-                                <a href="{% url 'tweet_edit' tweet.id %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                                <a href="{% url 'tweet_delete' tweet.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
-                            </div>
+                        <!-- Edit Button -->
+                        <a href="{% url 'tweet_edit' tweet.id %}" class="btn btn-sm btn-warning">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+
+                        <!-- Delete Button -->
+                        <a href="{% url 'tweet_delete' tweet.id %}" class="btn btn-sm btn-danger" 
+                           onclick="return confirm('Are you sure you want to delete this tweet?')">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
                         {% endif %}
                     </div>
                 </div>
             </div>
+            {% empty %}
+            <div class="text-center py-5">
+                <i class="fas fa-comments fa-3x mb-3" style="color: var(--text-light);"></i>
+                <h3>No tweets yet</h3>
+                <p class="text-muted">Be the first to share something!</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'tweet_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create First Tweet
+                </a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Join ChaiHeadQ
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
-{% else %}
-    <div class="alert alert-info text-center" role="alert">
-        <h4>No tweets yet!</h4>
-        <p>Be the first to share something interesting.</p>
-        {% if user.is_authenticated %}
-        <a href="{% url 'tweet_create' %}" class="btn btn-primary">Create Your First Tweet</a>
-        {% endif %}
+
+    <!-- Right Sidebar -->
+    <div class="sidebar d-none d-lg-block">
+        <h4><i class="fas fa-users"></i> Who to Follow</h4>
+        <div class="sidebar-item">
+            <strong>@developer</strong><br>
+            <small>Web Developer</small>
+        </div>
+        <div class="sidebar-item">
+            <strong>@designer</strong><br>
+            <small>UI/UX Designer</small>
+        </div>
+        <div class="sidebar-item">
+            <strong>@techie</strong><br>
+            <small>Tech Enthusiast</small>
+        </div>
     </div>
-{% endif %}
+</div>
 {% endblock %}

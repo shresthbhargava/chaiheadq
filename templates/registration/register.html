@@ -1,11 +1,58 @@
 {% extends "layout.html" %}
+{% block title %}Register - ChaiHeadQ{% endblock %}
+
 {% block content %}
-<h2>Register</h2>
-<form method="post">
-{% csrf_token %}
-{{form.as_p}}
-<button class="btn btn-primary">Register</button>
-</form>
-{% endblock %}
-</form>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card bg-dark border-light">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Register</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="alert alert-danger mt-2">{{ form.username.errors }}</div>
+                        {% endif %}
+                        {% if form.username.help_text %}
+                            <div class="form-text">{{ form.username.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="alert alert-danger mt-2">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="alert alert-danger mt-2">{{ form.password1.errors }}</div>
+                        {% endif %}
+                        {% if form.password1.help_text %}
+                            <div class="form-text">{{ form.password1.help_text|safe }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="alert alert-danger mt-2">{{ form.password2.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+                    <button class="btn btn-primary w-100" type="submit">Register</button>
+                </form>
+                <div class="text-center mt-3">
+                    <p>Already have an account? <a href="{% url 'login' %}">Login here</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

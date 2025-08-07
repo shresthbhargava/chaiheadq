@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block title %}Home - ChaiHeadQ{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h1 class="display-4 mb-4">Welcome to ChaiHeadQ</h1>
+        <p class="lead mb-4">Your one-stop platform for sharing and discovering tweets.</p>
+        
+        {% if not user.is_authenticated %}
+        <div class="card bg-dark border-light mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Join ChaiHeadQ Today</h5>
+                <p class="card-text">Connect with friends, share your thoughts, and discover what's happening.</p>
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg me-2">Sign Up</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Log In</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="card bg-dark border-light mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Welcome back, {{ user.username }}!</h5>
+                <p class="card-text">Share your thoughts with the world.</p>
+                <a href="{% url 'tweet_create' %}" class="btn btn-primary btn-lg">Create a Tweet</a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="row mt-5">
+            <div class="col-md-4 mb-3">
+                <div class="card bg-dark border-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Share Your Thoughts</h5>
+                        <p class="card-text">Express yourself in 280 characters or less. Add photos and videos to make your tweets more engaging.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card bg-dark border-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Discover Content</h5>
+                        <p class="card-text">Follow friends and discover interesting tweets from people around the world.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card bg-dark border-light h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Connect</h5>
+                        <p class="card-text">Engage with others through likes and comments on their tweets.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
